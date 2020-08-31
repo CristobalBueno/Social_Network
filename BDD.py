@@ -21,8 +21,10 @@ def execute_query(query):
         cursor.execute(query)
         BDD_Connection.commit()
         print("BDD -> The query has been made")
+        return True
     except Error as e:
         print(f"Exception execute_query: {e.args}")
+        return False
 
 
 def show_bdd(query):
@@ -33,13 +35,3 @@ def show_bdd(query):
     except Error as e:
         print(f"Exception show_bdd: {e.args}")
 
-
-create_users_table = """
-           CREATE TABLE IF NOT EXISTS users (
-               user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-               user_email TEXT NOT NULL UNIQUE,
-               user_password TEXT,
-               user_name TEXT NOT NULL UNIQUE,
-               user_lastname TEXT
-               )
-           """

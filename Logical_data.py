@@ -2,7 +2,7 @@ import BDD
 
 
 class User:
-    def __init__(self, user_id: int, user_name: str, user_lastname: str, user_email: str, user_password: str):
+    def __init__(self, user_id, user_name: str, user_lastname: str, user_email: str, user_password: str):
         self.user_id = user_id
         self.user_name = user_name
         self.user_lastname = user_lastname
@@ -23,4 +23,5 @@ class User:
         print("Logical_Data -> Class Insert_user", create_user)
 
         #Insert user to DBB
-        BDD.execute_query(create_user)
+        isReady = BDD.execute_query(create_user)
+        return isReady

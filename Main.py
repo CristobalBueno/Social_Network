@@ -18,17 +18,12 @@
 # * PTOS - Cualquier funcionalidad extra que aporte valor a la red social
 
 import BDD
-import Logical_data
 import Activities.Class_Main_Activities as CLM
 import tkinter as tk
 
 if __name__ == '__main__':
     root = tk.Tk()
     app = CLM.Social_Network_App(root)
-
-    user_juan = Logical_data.User(1, "Juan", "Fernandez", "Juan@gmail.com", "0123456D")
-    user_fernando = Logical_data.User(2, "Fernando", "Fernandez", "Fernando@gmail.com", "0123456E")
-    print(user_juan)
     conection = BDD.create_connection("Social_network_database.db")
 
     create_users_table = """
@@ -41,10 +36,8 @@ if __name__ == '__main__':
                    # )
                # """
     BDD.execute_query(create_users_table)
-    user_juan.insert_user()
-    user_fernando.insert_user()
 
-    print("MAIN -> Hello")
+    print("MAIN -> Finished")
 
-    #conection.close()
+    # conection.close()
     app.mainloop()
