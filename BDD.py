@@ -1,6 +1,20 @@
 import sqlite3
 from sqlite3 import Error
+import pickle
+"""
+import pickle
+listaSerializada = pickle.dumps([1,2,3,4])
+print(listaSerializada)
 
+Y con aquel dato lo que harias es almacenarlo en alguna columna tipo BLOB
+
+Luego cuando quieras obtener el valor a partir de la consulta a tu BD, usarias el metodo loads()
+
+listaSerializada = pickle.dumps([1,2,3,4])
+listaNoSerializada = pickle.loads(listaSerializada)
+print('Lista %s' % listaNoSerializada)
+"""
+# https://pynative.com/python-sqlite-blob-insert-and-retrieve-digital-data/
 
 def create_connection(path):
     global BDD_Connection
@@ -34,4 +48,5 @@ def show_bdd(query):
         return dates
     except Error as e:
         print(f"Exception show_bdd: {e.args}")
+
 

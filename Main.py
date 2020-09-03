@@ -29,13 +29,25 @@ if __name__ == '__main__':
     create_users_table = """
                CREATE TABLE IF NOT EXISTS users (
                    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                   user_name TEXT NOT NULL UNIQUE,
+                   user_name TEXT NOT NULL,
                    user_lastname TEXT,
                    user_email TEXT NOT NULL UNIQUE,
                    user_password TEXT
-                   # )
-               # """
+                   )
+               """
+    create_conversation_table = """
+                   CREATE TABLE IF NOT EXISTS conversation (
+                       conversation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                       user_id1 INTEGER NOT NULL,
+                       user_id2 INTEGER NOT NULL,
+                       reference_conversation TEXT NOT NULL,
+                       data BLOB,
+                       FOREIGN KEY (user_id1) REFERENCES users(user_id)
+                       FOREIGN KEY (user_id2) REFERENCES users(user_id)
+                       )
+                   """
     BDD.execute_query(create_users_table)
+    BDD.execute_query(create_conversation_table)
 
     print("MAIN -> Finished")
 
