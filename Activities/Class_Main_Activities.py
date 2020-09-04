@@ -11,6 +11,7 @@ class Social_Network_App(tk.Frame):
     __Current_User = None
     __All_User = None
     __Current_Conversation = None
+    __Chat_data = None
 
     def __init__(self, root):
         super().__init__(root)
@@ -89,32 +90,62 @@ class Social_Network_App(tk.Frame):
         win_Activity_Conversation.config(bg="ghost white", padx=15, pady=15, bd=4, relief="groove")
         self.set_label(main=win_Activity_Conversation, textlabel=f"CHAT:{data[0]}", istitle=True)
         self.set_label(main=win_Activity_Conversation, textlabel=" ", position_anchor="nw")
-        text_conversation = tk.Text(win_Activity_Conversation, width=200, height=22 )
+        text_conversation = tk.Text(win_Activity_Conversation, width=200, height=22)
         text_conversation.config(state="normal")
-        text_conversation.insert(tk.INSERT, "Hola\n")
-        text_conversation.insert(tk.INSERT, "Adios\n")
+        text_conversation.insert(tk.INSERT, "New conver!\n")
         text_conversation.config(state="disabled")
         text_conversation.pack()
         self.set_label(main=win_Activity_Conversation, textlabel=" ")
         self.Entry_New_Message_user = self.set_entry(main=win_Activity_Conversation)
 
-        Button_Send_Message = self.set_button(main=win_Activity_Conversation, text="SEND", color_bg="green yellow", position_side="bottom")
-        Button_Send_Message.config(command=lambda: self.Button_Send_Message(win_Activity_Conversation))
+        Button_Send_Message = self.set_button(main=win_Activity_Conversation, text="SEND", color_bg="green yellow",
+                                              position_side="bottom")
+        Button_Send_Message.config(command=lambda: self.Button_Send_Message(text_conversation))
 
         win_Activity_Conversation.mainloop()
 
     """
             ACTIVITY CONVERSATION: CLICK BUTTON
     """
+
     def Button_Send_Message(self, root):
         try:
             print("CMA -> Click Button Send Message -> Message: ",
-                  self.Entry_New_Message_user.get(), " User: ", Social_Network_App.__Current_User, " Conver: ", Social_Network_App.__Current_Conversation)
+                  self.Entry_New_Message_user.get(), " User: ", Social_Network_App.__Current_User, " Conver: ",
+                  Social_Network_App.__Current_Conversation)
+            Social_Network_App.__Chat_data = Social_Network_App.__Current_Conversation[4]
+            print("CMA -> Click Button Send Message -> IsNone?: ", Social_Network_App.__Chat_data)
 
-            query_update_conversation = """UPDATE conversation SET data = "{}" where conversation_id = "{}" """.format(self.Entry_New_Message_user.get(), Social_Network_App.__Current_Conversation[0])
-            #TODO FALTA POR AÑADIR QUE RECOJA TODA LA CONVERSACION EN CASO DE QUE EXISTA (SI NO ES NULL)
-            #TODO INTRODUCIRLO COMO TENGO EN EL EJEMPLO DE PICKLE Y QUE ACTUALICE TODAS LAS VISTAS DE CONVERSATION. CADA VEZ QUE SE PULSE EL BOTON ENVIAR.
-            BDD.execute_query(query_update_conversation)
+            if Social_Network_App.__Chat_data is None:
+                print("CMA -> Click Button Send Message -> IsNone? YES")
+                Set_New_chat = BDD.to_serizable_data([[str(Social_Network_App.__Current_User[0]), self.Entry_New_Message_user.get()]])
+                print("-----> ENVIAMOS: ", Set_New_chat)
+                query_update_conversation = """UPDATE conversation SET data = "{}" where conversation_id = "{}" """.format(
+                     Set_New_chat, Social_Network_App.__Current_Conversation[0])
+                BDD.execute_query(query_update_conversation)
+            else:
+                print("CMA -> Click Button Send Message -> IsNone? NO")
+                select_chat_conversation = """
+                            SELECT data FROM conversation
+                            WHERE conversation_id = "{}"
+                            """.format(Social_Network_App.__Current_Conversation[0])
+                chat_serizable = BDD.show_bdd(select_chat_conversation)
+                Social_Network_App.__Chat_data = BDD.to_not_serizable_data(chat_serizable)
+                print("\n VIEW CHAT: ", Social_Network_App.__Chat_data)
+                Social_Network_App.__Chat_data.append([str(Social_Network_App.__Current_User[0]), self.Entry_New_Message_user.get()])
+                Set_New_chat = BDD.to_serizable_data(Social_Network_App.__Chat_data)
+                query_update_conversation = """UPDATE conversation SET data = "{}" where conversation_id = "{}" """.format(
+                    Set_New_chat, Social_Network_App.__Current_Conversation[0])
+                BDD.execute_query(query_update_conversation)
+                print("\n VIEW CHAT: ", Social_Network_App.__Chat_data)
+            root.config(state="normal")
+            root.delete("1.0", "end")
+            for index, item in enumerate(Social_Network_App.__Chat_data):
+                if str(Social_Network_App.__Current_User[0]) == item[0]:
+                    root.insert(tk.INSERT, f"You: {item[1]}\n")
+                else:
+                    root.insert(tk.INSERT, f"THEY: {item[1]}\n")
+            root.config(state="disabled")
 
         except Exception as e:
             print(messagebox.showinfo(message="ERROR", title="Warning!"))
@@ -212,13 +243,21 @@ class Social_Network_App(tk.Frame):
             print("CMA --> Listbox --> The conversation already exists")
         else:
             print("CMA --> Listbox --> The conversation is created")
+            # create_conversation = """
+            #                     INSERT INTO
+            #                         conversation(user_id1, user_id2, reference_conversation, data)
+            #                     VALUES
+            #                       ("{}", "{}", "{}", "{}")
+            #                     """.format(Social_Network_App.__Current_User[0], data_other_user[3],
+            #                                reference_conversation,
+            #                                None)
             create_conversation = """
-                                INSERT INTO
-                                    conversation(user_id1, user_id2, reference_conversation, data)
-                                VALUES
-                                  ("{}", "{}", "{}", "{}")
-                                """.format(Social_Network_App.__Current_User[0], data_other_user[3], reference_conversation,
-                                           None)
+                                            INSERT INTO
+                                                conversation(user_id1, user_id2, reference_conversation, data)
+                                            VALUES
+                                              ("{}", "{}", "{}", null)
+                                            """.format(Social_Network_App.__Current_User[0], data_other_user[3],
+                                                       reference_conversation)
             BDD.execute_query(create_conversation)
 
             select_new_conversation = """

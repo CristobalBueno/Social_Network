@@ -1,6 +1,9 @@
+import ast
 import sqlite3
+from filecmp import cmp
 from sqlite3 import Error
 import pickle
+import json
 """
 import pickle
 listaSerializada = pickle.dumps([1,2,3,4])
@@ -14,6 +17,8 @@ listaSerializada = pickle.dumps([1,2,3,4])
 listaNoSerializada = pickle.loads(listaSerializada)
 print('Lista %s' % listaNoSerializada)
 """
+
+
 # https://pynative.com/python-sqlite-blob-insert-and-retrieve-digital-data/
 
 def create_connection(path):
@@ -48,5 +53,22 @@ def show_bdd(query):
         return dates
     except Error as e:
         print(f"Exception show_bdd: {e.args}")
+
+
+def to_serizable_data(chat):
+    print("BDD --> Serizable_data")
+    return pickle.dumps(chat)
+
+
+def to_not_serizable_data(chat):
+    print("BDD --> Not_Serizable_data")
+    list_not_serizable = pickle.loads(ast.literal_eval(chat[0][0]))
+    return list_not_serizable
+
+
+
+
+
+
 
 
